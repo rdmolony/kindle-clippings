@@ -5,12 +5,44 @@ import collections
 import json
 import os
 import re
+from sys import platform
+from shutil import copyfile
+from pathlib import Path
 
 BOUNDARY = u"==========\r\n"
 DATA_FILE = u"clips.json"
 OUTPUT_DIR = u"output"
-MY_CLIPPINGS = u'My Clippings.txt'
+MY_CLIPPINGS = Path(u'My Clippings.txt')
 
+
+def _get_path_to_kindle_clippings() -> Path:
+
+    if platform == 'darwin': # Mac / OSX 
+        path_to_clippings = Path(r"/Volumes/Kindle/documents/My Clippings.txt")
+    
+    elif platform == 'win32': # Windows
+        raise NotImplementedError(
+           r"Please replace this with absolute path to 'My Clippings.txt' for Windows..."
+        )
+
+    elif platform == "linux" or platform == "linux2":
+        raise NotImplementedError(
+           r"Please replace this with absolute path to 'My Clippings.txt' for Linux..."
+        )
+       
+    return path_to_clippings
+
+
+def _copy_clippings_from_kindle(clippings_local: Path, clippings_kindle: Path) -> None:
+
+    if not clippings_local.exists():
+        if clippings_kindle.exists():
+            copyfile(clippings_kindle, clippings_local)
+        else:
+            raise Exception(
+            "Cannot find Kindle!\n"
+            f"Ensure Kindle is plugged in and 'My Clippings.txt' is saved at {clippings_kindle}"
+        )
 
 def get_sections(filename):
     with open(filename, 'rb') as f:
@@ -72,6 +104,11 @@ def save_clips(clips):
 
 
 def main():
+
+    local_clippings = Path("My Clippings.txt")
+    kindle_clippings = _get_path_to_kindle_clippings()
+    _copy_clippings_from_kindle(local_clippings, kindle_clippings)
+
     # load old clips
     clips = collections.defaultdict(dict)
     clips.update(load_clips())
