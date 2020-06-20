@@ -1,7 +1,10 @@
 Kindle Clippings
 ================
 
-A simple python script to extract clippings from 'My Clippings.txt', organize, store and output them in a more elegant way.
+A simple python script to:
+1. Pull 'My Clippings.txt' file from Kindle
+2. Extract clippings from 'My Clippings.txt' by book
+3. Load clippings from each book into separate files
 
 Features
 --------
@@ -17,8 +20,6 @@ Msgpack was used to serialize clippings for archive.
 Each new `My Clippings.txt` will add clips to previous archive automatically.
 
 Clips will be export to `output` directory, find them there.
-
-It's EASY and you don't need to care nothing!
 
 
 Usage
