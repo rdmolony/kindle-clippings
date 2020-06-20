@@ -1,7 +1,10 @@
 Kindle Clippings
 ================
 
-A simple python script to extract clippings from 'My Clippings.txt', organize, store and output them in a more elegant way.
+A simple python script to extract clippings from 'My Clippings.txt', organize, store and output them in a more elegant way.  
+
+Must first copy clippings from Kindle to this directory...
+- On OSX: copy from /Volumes/Kindle/documents/My Clippings.txt
 
 Features
 --------
