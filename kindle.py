@@ -9,6 +9,7 @@ import re
 BOUNDARY = u"==========\r\n"
 DATA_FILE = u"clips.json"
 OUTPUT_DIR = u"output"
+MY_CLIPPINGS = u'My Clippings.txt'
 
 
 def get_sections(filename):
@@ -76,7 +77,7 @@ def main():
     clips.update(load_clips())
 
     # extract clips
-    sections = get_sections(u'My Clippings.txt')
+    sections = get_sections(MY_CLIPPINGS)
     for section in sections:
         clip = get_clip(section)
         if clip:
