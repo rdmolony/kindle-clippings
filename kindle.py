@@ -5,6 +5,7 @@ import collections
 import json
 import os
 import re
+from collections import defaultdict
 from sys import platform
 from shutil import copyfile
 from pathlib import Path
@@ -44,30 +45,32 @@ def _copy_clippings_from_kindle(clippings_local: Path, clippings_kindle: Path) -
             f"Ensure Kindle is plugged in and 'My Clippings.txt' is saved at {clippings_kindle}"
         )
 
-def get_sections(filename):
+
+def _load_clippings_to_string(filename: Path):
+
     with open(filename, 'rb') as f:
         content = f.read().decode('utf-8')
-    content = content.replace(u'\ufeff', u'')
-    return content.split(BOUNDARY)
+    
+    return content
 
 
-def get_clip(section):
-    clip = {}
+def _split_clippings_into_ordereddict(raw_clippings: str):
 
-    lines = [l for l in section.split(u'\r\n') if l]
-    if len(lines) != 3:
-        return
+    books_with_quotes = defaultdict(list)
+    clippings = (
+        raw_clippings.replace(u"\r", "")
+        .replace(u"\n\n", "\n")
+        .replace(u"\ufeff", "")
+        .split("==========")
+    )
 
-    clip['book'] = lines[0]
-    match = re.search(r'(\d+)-\d+', lines[1])
-    if not match:
-        return
-    position = match.group(1)
-
-    clip['position'] = int(position)
-    clip['content'] = lines[2]
-
-    return clip
+    for clipping in clippings:
+        split_clipping = clipping.strip(u"\n").split(u"\n")
+        book = split_clipping[0]
+        quote = split_clipping[-1]
+        books_with_quotes[book].append(quote)
+    
+    return books_with_quotes
 
 
 def export_txt(clips):
@@ -108,6 +111,9 @@ def main():
     local_clippings = Path("My Clippings.txt")
     kindle_clippings = _get_path_to_kindle_clippings()
     _copy_clippings_from_kindle(local_clippings, kindle_clippings)
+
+    raw_clippings = _load_clippings_to_string(local_clippings)
+    _split_clippings_into_ordereddict(raw_clippings)
 
     # load old clips
     clips = collections.defaultdict(dict)
