@@ -10,12 +10,27 @@ from sys import platform
 from shutil import copyfile
 from pathlib import Path
 
+from prefect import Flow, task
+from pipeop import pipes
+
 BOUNDARY = u"==========\r\n"
 DATA_FILE = u"clips.json"
 OUTPUT_DIR = u"output"
 MY_CLIPPINGS = Path(u'My Clippings.txt')
 
+@pipes
+def _etl_clippings_to_folder():
 
+    with Flow("Extract clippings from Kindle to files") as flow:
+
+        path_to_clippings = _get_path_to_kindle_clippings.run()
+        _copy_clippings_from_kindle_to_cwd(path_to_clippings)
+
+        _load_clippings_to_string() >> _split_clippings_into_ordereddict
+
+
+
+@task
 def _get_path_to_kindle_clippings() -> Path:
 
     if platform == 'darwin': # Mac / OSX 
@@ -34,7 +49,8 @@ def _get_path_to_kindle_clippings() -> Path:
     return path_to_clippings
 
 
-def _copy_clippings_from_kindle(clippings_local: Path, clippings_kindle: Path) -> None:
+@task
+def _copy_clippings_from_kindle_to_cwd(clippings_local: Path, clippings_kindle: Path) -> None:
 
     if not clippings_local.exists():
         if clippings_kindle.exists():
@@ -46,6 +62,7 @@ def _copy_clippings_from_kindle(clippings_local: Path, clippings_kindle: Path) -
         )
 
 
+@task
 def _load_clippings_to_string(filename: Path):
 
     with open(filename, 'rb') as f:
@@ -54,6 +71,7 @@ def _load_clippings_to_string(filename: Path):
     return content
 
 
+@task
 def _split_clippings_into_ordereddict(raw_clippings: str):
 
     books_with_quotes = defaultdict(list)
@@ -72,6 +90,9 @@ def _split_clippings_into_ordereddict(raw_clippings: str):
     
     return books_with_quotes
 
+
+@task
+def _
 
 def export_txt(clips):
     """
